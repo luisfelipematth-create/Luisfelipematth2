@@ -1,0 +1,725 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#171717">
+<title>Leilão Gado — Calculadora</title>
+<style>
+:root{--bg:#f4f1ea;--card:#fff;--ink:#1d211d;--muted:#6d716c;--line:#ddd8cd;--accent:#345b3d;--accent2:#e8efe8;--danger:#a23b32;--good:#2e6b43;--shadow:0 8px 25px rgba(0,0,0,.07)}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
+button,input,select{font:inherit}button{cursor:pointer}
+header{background:#171a17;color:white;padding:18px 16px;position:sticky;top:0;z-index:5}
+.wrap{max-width:1050px;margin:auto;padding:0 14px 32px}.brand{display:flex;align-items:center;justify-content:space-between;gap:10px}.brand h1{font-size:20px;margin:0}.brand small{opacity:.7}
+nav{display:flex;gap:8px;margin-top:14px;overflow:auto}nav button{white-space:nowrap;border:1px solid #454945;background:#252925;color:#fff;border-radius:10px;padding:9px 12px}nav button.active{background:#fff;color:#171a17}
+main{padding-top:16px}.tab{display:none}.tab.active{display:block}
+.grid{display:grid;gap:14px}.two{grid-template-columns:repeat(2,minmax(0,1fr))}.three{grid-template-columns:repeat(3,minmax(0,1fr))}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;box-shadow:var(--shadow);margin-bottom:14px}
+h2{font-size:17px;margin:0 0 12px}.sub{color:var(--muted);font-size:13px;margin:-5px 0 13px}
+label{display:block;font-size:13px;font-weight:650;margin-bottom:10px}input,select{width:100%;margin-top:6px;border:1px solid #cfcac0;background:#fff;border-radius:10px;padding:12px;min-height:46px;color:var(--ink)}
+input:focus,select:focus,button:focus{outline:3px solid #a9c5ad;outline-offset:1px}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.kpi{border:1px solid var(--line);border-radius:13px;padding:12px;background:#faf9f6}.kpi span{display:block;color:var(--muted);font-size:12px}.kpi strong{display:block;font-size:20px;margin-top:4px;word-break:break-word}
+.hero{background:var(--accent);color:#fff;border-radius:16px;padding:18px;margin-bottom:14px}.hero .big{font-size:32px;font-weight:800}.hero small{opacity:.8}
+.btn{border:0;border-radius:11px;padding:12px 15px;font-weight:750}.primary{background:var(--accent);color:#fff}.secondary{background:#eeeae1;color:var(--ink)}.danger{background:#f7e3e1;color:var(--danger)}
+.actions{display:flex;flex-wrap:wrap;gap:8px}.note{font-size:12px;color:var(--muted);line-height:1.45}.status{font-size:14px;font-weight:700;margin-top:8px}.good{color:var(--good)}.bad{color:var(--danger)}
+table{width:100%;border-collapse:collapse;font-size:13px}th,td{text-align:left;padding:10px 7px;border-bottom:1px solid var(--line)}th{color:var(--muted)}
+.badge{display:inline-block;padding:4px 8px;border-radius:999px;background:var(--accent2);font-size:11px;font-weight:750}
+.list-item{display:flex;align-items:center;justify-content:space-between;gap:10px;border-bottom:1px solid var(--line);padding:11px 0}.list-item:last-child{border:0}
+@media(max-width:720px){.two,.three{grid-template-columns:1fr}.kpis{grid-template-columns:repeat(2,1fr)}.kpi strong{font-size:18px}.wrap{padding:0 10px 28px}.card{padding:14px}}
+@media(min-width:721px){.stickycol{position:sticky;top:118px;align-self:start}}
+</style>
+</head>
+<body>
+
+<header>
+<div class="wrap" style="padding-bottom:0">
+<div class="brand">
+<div><h1>🐂 Leilão Gado</h1><small>Calculadora de compra e giro</small></div>
+<span class="badge">V1</span>
+</div>
+
+<nav>
+<button class="tabbtn active" data-tab="calc">Calculadora</button>
+<button class="tabbtn" data-tab="sim">Simulador de lances</button>
+<button class="tabbtn" data-tab="lotes">Lotes salvos</button>
+<button class="tabbtn" data-tab="config">Configurações</button>
+</nav>
+</div>
+</header>
+
+<main class="wrap">
+
+<section id="calc" class="tab active">
+
+<div class="grid two">
+
+<div>
+
+<div class="card">
+<h2>1. Dados do lote</h2>
+
+<div class="two grid">
+
+<label>Quantidade de animais
+<input id="qtd" type="number" min="1" step="1" value="10">
+</label>
+
+<label>Peso médio (kg)
+<input id="peso" type="number" min="0" step="0.1" value="420">
+</label>
+
+<label>Rendimento de carcaça (%)
+<input id="rend" type="number" min="1" max="100" step="0.1" value="50">
+</label>
+
+<label>Preço esperado da arroba (R$)
+<input id="pArroba" type="number" min="0" step="0.01" value="320">
+</label>
+
+</div>
+</div>
+
+<div class="card">
+<h2>2. Custos da compra</h2>
+
+<div class="two grid">
+
+<label>Lance atual por animal (R$)
+<input id="lance" type="number" min="0" step="10" value="8500">
+</label>
+
+<label>Comissão do leilão (%)
+<input id="comissao" type="number" min="0" step="0.01" value="3">
+</label>
+
+<label>Frete total (R$)
+<input id="frete" type="number" min="0" step="10" value="1500">
+</label>
+
+<label>Outros custos por animal (R$)
+<input id="outros" type="number" min="0" step="10" value="0">
+</label>
+
+</div>
+</div>
+
+<div class="card">
+<h2>3. Manejo até a venda</h2>
+
+<div class="two grid">
+
+<label>Dias de engorda
+<input id="dias" type="number" min="0" step="1" value="120">
+</label>
+
+<label>Ganho médio diário (kg)
+<input id="gmd" type="number" min="0" step="0.01" value="0.9">
+</label>
+
+<label>Custo diário/animal (R$)
+<input id="custoDia" type="number" min="0" step="0.01" value="8">
+</label>
+
+<label>Perdas/ajustes (%)
+<input id="perdas" type="number" min="0" max="100" step="0.1" value="0">
+</label>
+
+</div>
+
+<p class="note">
+O sistema estima o peso de venda pelo peso inicial + GMD × dias.
+“Perdas/ajustes” reduz a receita estimada.
+</p>
+
+</div>
+</div>
+
+<div class="stickycol">
+
+<div class="hero">
+<small>LANCE MÁXIMO POR ANIMAL</small>
+<div class="big" id="maxLance">R$ 0,00</div>
+<small id="maxTotal">Lote: R$ 0,00</small>
+</div>
+
+<div class="card">
+
+<h2>Resultado do lote</h2>
+
+<div class="kpis">
+
+<div class="kpi">
+<span>Arrobas atuais</span>
+<strong id="arrobas">0</strong>
+</div>
+
+<div class="kpi">
+<span>Peso de venda</span>
+<strong id="pesoVenda">0 kg</strong>
+</div>
+
+<div class="kpi">
+<span>Venda/animal</span>
+<strong id="vendaAnimal">R$ 0</strong>
+</div>
+
+<div class="kpi">
+<span>Lucro/animal</span>
+<strong id="lucroAnimal">R$ 0</strong>
+</div>
+
+</div>
+
+<div style="margin-top:10px" class="kpis">
+
+<div class="kpi">
+<span>Custo total</span>
+<strong id="custoTotal">R$ 0</strong>
+</div>
+
+<div class="kpi">
+<span>Receita total</span>
+<strong id="receitaTotal">R$ 0</strong>
+</div>
+
+<div class="kpi">
+<span>Lucro total</span>
+<strong id="lucroTotal">R$ 0</strong>
+</div>
+
+<div class="kpi">
+<span>Margem</span>
+<strong id="margem">0%</strong>
+</div>
+
+</div>
+
+<div id="status" class="status"></div>
+
+</div>
+
+<div class="card">
+<div class="actions">
+<button class="btn primary" id="salvar">Salvar lote</button>
+<button class="btn secondary" id="limpar">Limpar</button>
+</div>
+</div>
+
+</div>
+</div>
+</section>
+
+
+<section id="sim" class="tab">
+
+<div class="card">
+
+<h2>Simulador rápido de lances</h2>
+
+<p class="sub">
+Veja como o lucro muda conforme o lance sobe.
+Os demais dados vêm da calculadora.
+</p>
+
+<div class="three grid">
+
+<label>Lance inicial
+<input id="sIni" type="number" min="0" step="10">
+</label>
+
+<label>Aumento por lance
+<input id="sPasso" type="number" min="1" step="10" value="100">
+</label>
+
+<label>Quantidade de cenários
+<input id="sN" type="number" min="1" max="30" step="1" value="12">
+</label>
+
+</div>
+
+<button class="btn primary" id="simular">Simular</button>
+
+</div>
+
+<div class="card">
+
+<div style="overflow:auto">
+
+<table>
+
+<thead>
+<tr>
+<th>Lance/cab.</th>
+<th>Custo/cab.</th>
+<th>Lucro/cab.</th>
+<th>Lucro lote</th>
+<th>Margem</th>
+</tr>
+</thead>
+
+<tbody id="simBody"></tbody>
+
+</table>
+
+</div>
+</div>
+</section>
+
+
+<section id="lotes" class="tab">
+
+<div class="card">
+
+<h2>Lotes salvos</h2>
+
+<p class="sub">
+Os lotes ficam salvos neste navegador.
+</p>
+
+<div id="lista"></div>
+
+<button class="btn danger" id="apagarTudo" style="margin-top:12px">
+Apagar todos
+</button>
+
+</div>
+</section>
+
+
+<section id="config" class="tab">
+
+<div class="card">
+
+<h2>Configurações e fórmula</h2>
+
+<p class="note">
+Esta V1 usa 1 arroba = 15 kg.
+A receita estimada é: arrobas de venda × preço da arroba,
+ajustada pelas perdas/ajustes.
+O custo inclui lance + comissão + frete + outros custos + manejo.
+</p>
+
+<p class="note">
+O lance máximo é calculado para atingir o resultado definido abaixo.
+Você pode ajustar a meta de lucro por animal:
+</p>
+
+<label>
+Lucro desejado por animal (R$)
+<input id="metaLucro" type="number" min="0" step="50" value="1000">
+</label>
+
+<button class="btn primary" id="salvarConfig">
+Aplicar meta
+</button>
+
+</div>
+</section>
+
+</main>
+
+
+<script>
+
+(function(){
+
+const $=id=>document.getElementById(id);
+
+const ids=[
+'qtd','peso','rend','pArroba','lance','comissao',
+'frete','outros','dias','gmd','custoDia','perdas','metaLucro'
+];
+
+const num=id=>Math.max(0,parseFloat($(id).value)||0);
+
+const money=v=>Number(v||0).toLocaleString(
+'pt-BR',
+{style:'currency',currency:'BRL'}
+);
+
+function data(){
+
+const qtd=Math.max(1,Math.round(num('qtd')));
+const peso=num('peso');
+const rend=Math.min(100,num('rend'));
+const pa=num('pArroba');
+const lance=num('lance');
+const com=num('comissao')/100;
+const frete=num('frete');
+const outros=num('outros');
+const dias=num('dias');
+const gmd=num('gmd');
+const cd=num('custoDia');
+const perdas=Math.min(100,num('perdas'));
+const meta=num('metaLucro');
+
+const arrobaAtual=peso*rend/100/15;
+
+const pesoVenda=peso+gmd*dias;
+
+const arrobaVenda=pesoVenda*rend/100/15;
+
+const venda=arrobaVenda*pa*(1-perdas/100);
+
+const manejo=cd*dias;
+
+const custoAnimal=
+lance*(1+com)+
+frete/qtd+
+outros+
+manejo;
+
+const custoTotal=custoAnimal*qtd;
+
+const receitaTotal=venda*qtd;
+
+const lucroAnimal=venda-custoAnimal;
+
+const lucroTotal=receitaTotal-custoTotal;
+
+const margem=custoAnimal?
+lucroAnimal/custoAnimal*100:0;
+
+const custosFixos=
+frete/qtd+
+outros+
+manejo;
+
+const maxLance=Math.max(
+0,
+(venda-meta-custosFixos)/(1+com)
+);
+
+return{
+qtd,peso,rend,pa,lance,com,frete,outros,
+dias,gmd,cd,perdas,meta,
+arrobaAtual,pesoVenda,arrobaVenda,venda,
+custoAnimal,custoTotal,receitaTotal,
+lucroAnimal,lucroTotal,margem,maxLance
+};
+
+}
+
+
+function calc(){
+
+const d=data();
+
+$('arrobas').textContent=d.arrobaAtual.toFixed(2);
+
+$('pesoVenda').textContent=
+d.pesoVenda.toFixed(0)+' kg';
+
+$('vendaAnimal').textContent=
+money(d.venda);
+
+$('lucroAnimal').textContent=
+money(d.lucroAnimal);
+
+$('custoTotal').textContent=
+money(d.custoTotal);
+
+$('receitaTotal').textContent=
+money(d.receitaTotal);
+
+$('lucroTotal').textContent=
+money(d.lucroTotal);
+
+$('margem').textContent=
+d.margem.toFixed(1)+'%';
+
+$('maxLance').textContent=
+money(d.maxLance);
+
+$('maxTotal').textContent=
+'Lote: '+money(d.maxLance*d.qtd);
+
+$('status').textContent=
+d.lucroTotal>=0
+?'✓ Resultado positivo nesta simulação.'
+:'⚠ Resultado negativo nesta simulação.';
+
+$('status').className=
+'status '+(d.lucroTotal>=0?'good':'bad');
+
+}
+
+
+ids.forEach(id=>
+$(id).addEventListener('input',calc)
+);
+
+
+document.querySelectorAll('.tabbtn').forEach(b=>
+b.addEventListener('click',()=>{
+
+document.querySelectorAll('.tabbtn')
+.forEach(x=>x.classList.remove('active'));
+
+b.classList.add('active');
+
+document.querySelectorAll('.tab')
+.forEach(x=>x.classList.remove('active'));
+
+$(b.dataset.tab).classList.add('active');
+
+if(b.dataset.tab==='lotes')
+renderSaved();
+
+})
+);
+
+
+$('metaLucro').value=
+localStorage.getItem('gadoMeta')||1000;
+
+
+$('salvarConfig').onclick=()=>{
+
+localStorage.setItem(
+'gadoMeta',
+$('metaLucro').value
+);
+
+calc();
+
+alert('Meta aplicada.');
+
+};
+
+
+$('salvar').onclick=()=>{
+
+const d=data();
+
+const arr=
+JSON.parse(
+localStorage.getItem('gadoLotes')||'[]'
+);
+
+arr.unshift({
+
+id:Date.now(),
+
+data:new Date().toLocaleString('pt-BR'),
+
+qtd:d.qtd,
+
+peso:d.peso,
+
+lance:d.lance,
+
+lucro:d.lucroTotal,
+
+max:d.maxLance,
+
+raw:Object.fromEntries(
+ids.map(id=>[id,$(id).value])
+)
+
+});
+
+localStorage.setItem(
+'gadoLotes',
+JSON.stringify(arr.slice(0,50))
+);
+
+renderSaved();
+
+alert('Lote salvo.');
+
+};
+
+
+$('limpar').onclick=()=>{
+
+ids.forEach(id=>{
+
+if(id!=='metaLucro')
+$(id).value='0';
+
+});
+
+$('qtd').value=1;
+
+$('rend').value=50;
+
+$('metaLucro').value=
+localStorage.getItem('gadoMeta')||1000;
+
+calc();
+
+};
+
+
+function renderSaved(){
+
+const arr=
+JSON.parse(
+localStorage.getItem('gadoLotes')||'[]'
+);
+
+const el=$('lista');
+
+if(!arr.length){
+
+el.innerHTML=
+'<p class="note">Nenhum lote salvo.</p>';
+
+return;
+
+}
+
+el.innerHTML=
+arr.map(x=>`
+
+<div class="list-item">
+
+<div>
+
+<b>${x.qtd} cab.</b>
+· ${money(x.lance)}/cab.
+
+<br>
+
+<span class="note">
+${x.data} · lucro ${money(x.lucro)}
+</span>
+
+</div>
+
+<button
+class="btn secondary load"
+data-id="${x.id}">
+Abrir
+</button>
+
+</div>
+
+`).join('');
+
+
+el.querySelectorAll('.load')
+.forEach(b=>
+
+b.onclick=()=>{
+
+const x=
+arr.find(a=>a.id==b.dataset.id);
+
+Object.entries(x.raw).forEach(
+([k,v])=>{
+if($(k))$(k).value=v;
+}
+);
+
+calc();
+
+document
+.querySelector('[data-tab="calc"]')
+.click();
+
+}
+
+);
+
+}
+
+
+$('apagarTudo').onclick=()=>{
+
+if(confirm('Apagar todos os lotes salvos?')){
+
+localStorage.removeItem('gadoLotes');
+
+renderSaved();
+
+}
+
+};
+
+
+$('sIni').value=
+$('lance').value;
+
+
+$('simular').onclick=()=>{
+
+const d=data();
+
+const ini=Math.max(
+0,
+parseFloat($('sIni').value)||d.lance
+);
+
+const passo=Math.max(
+1,
+parseFloat($('sPasso').value)||100
+);
+
+const N=Math.min(
+30,
+Math.max(
+1,
+parseInt($('sN').value)||12
+)
+);
+
+let rows='';
+
+for(let i=0;i<N;i++){
+
+let lance=ini+i*passo;
+
+let custo=
+lance*(1+d.com)+
+d.frete/d.qtd+
+d.outros+
+d.cd*d.dias;
+
+let lucro=d.venda-custo;
+
+let total=lucro*d.qtd;
+
+let margem=
+custo?lucro/custo*100:0;
+
+rows+=`
+
+<tr>
+
+<td>${money(lance)}</td>
+
+<td>${money(custo)}</td>
+
+<td class="${lucro>=0?'good':'bad'}">
+${money(lucro)}
+</td>
+
+<td class="${total>=0?'good':'bad'}">
+${money(total)}
+</td>
+
+<td>${margem.toFixed(1)}%</td>
+
+</tr>
+
+`;
+
+}
+
+$('simBody').innerHTML=rows;
+
+};
+
+
+calc();
+
+renderSaved();
+
+})();
+
+</script>
+
+</body>
+  </html>
